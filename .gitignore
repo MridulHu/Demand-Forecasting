@@ -50,7 +50,6 @@ Thumbs.db
 # =========================
 # Dataset files (optional)
 # =========================
-data/*.csv
 data/*.zip
 data/*.parquet
 

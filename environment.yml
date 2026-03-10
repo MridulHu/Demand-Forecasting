@@ -1,0 +1,22 @@
+name: demand-forecast
+channels:
+  - conda-forge
+  - defaults
+
+dependencies:
+  - python=3.10
+  - pandas
+  - numpy
+  - matplotlib
+  - seaborn
+  - scikit-learn
+  - statsmodels
+  - tqdm
+  - jupyter
+  - pip
+
+  - pip:
+      - xgboost
+      - prophet
+      - tensorflow
+      - keras
