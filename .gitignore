@@ -1,0 +1,77 @@
+# =========================
+# Python
+# =========================
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.py[cod]
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# =========================
+# Jupyter
+# =========================
+.ipynb_checkpoints
+
+# =========================
+# Conda environments
+# =========================
+.env
+.venv
+env/
+venv/
+conda-env/
+*.conda
+
+# =========================
+# System files
+# =========================
+.DS_Store
+Thumbs.db
+
+# =========================
+# Logs
+# =========================
+*.log
+
+# =========================
+# Model files
+# =========================
+*.pkl
+*.joblib
+*.h5
+*.pt
+*.pth
+
+# =========================
+# Dataset files (optional)
+# =========================
+data/*.csv
+data/*.zip
+data/*.parquet
+
+# If you want to track dataset remove above lines
+
+# =========================
+# Output files
+# =========================
+outputs/
+predictions/
+plots/
+
+# =========================
+# IDE / Editor
+# =========================
+.vscode/
+.idea/
+
+# =========================
+# Mac / Windows temp files
+# =========================
+*.swp
+*.swo
+*~
