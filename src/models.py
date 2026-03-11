@@ -18,8 +18,7 @@ def train_xgboost(X_train, y_train):
         n_estimators=100,
         max_depth=6,
         learning_rate=0.1,
-        tree_method="gpu_hist",
-        predictor="gpu_predictor",
+        tree_method="hist",
         random_state=42
     )
 
