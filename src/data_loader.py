@@ -1,8 +1,19 @@
 import pandas as pd
 from .config import DATA_PATH
 
+
 def load_data():
+
     data = pd.read_csv(DATA_PATH)
+
     data["Date"] = pd.to_datetime(data["Date"])
     data.set_index("Date", inplace=True)
-    return data
+
+    # aggregate daily demand
+    daily = data.groupby(data.index)["Units Sold"].sum()
+
+    daily_df = pd.DataFrame({
+        "Daily Demand": daily
+    })
+
+    return daily_df

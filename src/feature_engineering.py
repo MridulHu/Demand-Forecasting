@@ -1,15 +1,22 @@
 def create_features(data):
 
-    data["Month"] = data.index.month
-    data["Day"] = data.index.day
-    data["Week"] = data.index.isocalendar().week
-    data["Year"] = data.index.year
+    df = data.copy()
 
-    data["Lag_1"] = data["Units Sold"].shift(1)
-    data["Lag_7"] = data["Units Sold"].shift(7)
-    data["Lag_30"] = data["Units Sold"].shift(30)
+    df["Lag_1"] = df["Daily Demand"].shift(1)
+    df["Lag_7"] = df["Daily Demand"].shift(7)
+    df["Lag_30"] = df["Daily Demand"].shift(30)
 
-    data["Rolling_Mean_7"] = data["Units Sold"].rolling(7).mean()
-    data["Rolling_Std_7"] = data["Units Sold"].rolling(7).std()
+    df["Rolling_Mean_7"] = df["Daily Demand"].rolling(7).mean()
+    df["Rolling_Std_7"] = df["Daily Demand"].rolling(7).std()
 
-    return data.dropna()
+    df["Rolling_Mean_30"] = df["Daily Demand"].rolling(30).mean()
+    df["Rolling_Std_30"] = df["Daily Demand"].rolling(30).std()
+
+    df["Month"] = df.index.month
+    df["Day"] = df.index.day
+    df["Week"] = df.index.isocalendar().week.astype(int)
+    df["Year"] = df.index.year
+
+    df = df.dropna()
+
+    return df

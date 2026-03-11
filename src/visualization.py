@@ -7,70 +7,53 @@ os.makedirs(PLOT_DIR, exist_ok=True)
 
 
 def plot_demand_trend(data):
+
     plt.figure(figsize=(14,6))
-    plt.plot(data.index, data["Units Sold"])
-    plt.title("Demand Trend Over Time")
+    plt.plot(data.index, data["Daily Demand"])
+    plt.title("Daily Demand Trend")
     plt.xlabel("Date")
     plt.ylabel("Units Sold")
+
     plt.savefig(f"{PLOT_DIR}/demand_trend.png")
     plt.close()
 
 
 def plot_monthly_seasonality(data):
-    monthly = data["Units Sold"].resample("M").mean()
+
+    monthly = data["Daily Demand"].resample("ME").mean()
 
     plt.figure(figsize=(12,6))
     plt.plot(monthly.index, monthly.values)
+
     plt.title("Monthly Average Demand")
-    plt.xlabel("Month")
+    plt.xlabel("Date")
     plt.ylabel("Units Sold")
+
     plt.savefig(f"{PLOT_DIR}/monthly_demand.png")
     plt.close()
 
 
 def plot_distribution(data):
+
     plt.figure(figsize=(8,6))
-    sns.histplot(data["Units Sold"], bins=30, kde=True)
-    plt.title("Distribution of Units Sold")
-    plt.savefig(f"{PLOT_DIR}/units_sold_distribution.png")
-    plt.close()
+    sns.histplot(data["Daily Demand"], bins=30, kde=True)
 
+    plt.title("Demand Distribution")
 
-import seaborn as sns
-import matplotlib.pyplot as plt
-
-def plot_correlation_heatmap(data):
-
-    numeric_data = data.select_dtypes(include=["number"])
-
-    corr = numeric_data.corr()
-
-    plt.figure(figsize=(14,10))
-
-    sns.heatmap(
-        corr,
-        cmap="coolwarm",
-        center=0
-    )
-
-    plt.title("Feature Correlation Heatmap")
-
-    plt.savefig("outputs/plots/correlation_heatmap.png")
+    plt.savefig(f"{PLOT_DIR}/distribution.png")
     plt.close()
 
 
 def plot_rolling_average(data):
 
-    rolling_mean = data["Units Sold"].rolling(30).mean()
+    rolling = data["Daily Demand"].rolling(30).mean()
 
     plt.figure(figsize=(14,6))
 
-    plt.plot(data.index, data["Units Sold"], alpha=0.4)
-    plt.plot(data.index, rolling_mean, linewidth=2)
+    plt.plot(data.index, data["Daily Demand"], alpha=0.4)
+    plt.plot(data.index, rolling)
 
-    plt.title("Rolling Mean (30 days)")
-    plt.xlabel("Date")
-    plt.ylabel("Units Sold")
+    plt.title("30 Day Rolling Average")
 
     plt.savefig(f"{PLOT_DIR}/rolling_average.png")
     plt.close()
@@ -90,17 +73,4 @@ def plot_forecast(test_dates, actual, future_dates, preds):
     plt.legend()
 
     plt.savefig(f"{PLOT_DIR}/forecast.png")
-    plt.close()
-
-
-def plot_feature_importance(model):
-
-    import xgboost as xgb
-
-    plt.figure(figsize=(10,6))
-    xgb.plot_importance(model, max_num_features=10)
-
-    plt.title("Top Features Influencing Demand")
-
-    plt.savefig(f"{PLOT_DIR}/feature_importance.png")
     plt.close()
