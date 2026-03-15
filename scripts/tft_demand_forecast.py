@@ -173,52 +173,49 @@ def main():
 
 
     # -----------------------------
-    # Prediction (full timeline)
+    # Prediction
     # -----------------------------
 
     predictions = tft.predict(
-    validation,
-    mode="raw",
-    return_x=True
+        validation,
+        mode="prediction",
+        return_x=True
     )
 
-    raw_predictions = predictions.output
+    pred = predictions.output.cpu().numpy()
     x = predictions.x
 
-    pred = raw_predictions["prediction"].cpu().numpy()
-
-    # take median quantile prediction
-    pred = pred[:, :, 0]
-
-    # flatten prediction timeline
     pred_values = pred.flatten()
 
-    # construct time index for prediction window
     pred_time = []
+    store_ids = []
+    product_ids = []
 
     for i in range(pred.shape[0]):
-        base = x["decoder_time_idx"][i].cpu().numpy()
-        pred_time.extend(base)
+        decoder_times = x["decoder_time_idx"][i].cpu().numpy()
+
+        store = x["groups"][i][0].item()
+        product = x["groups"][i][1].item()
+
+        pred_time.extend(decoder_times)
+        store_ids.extend([store] * len(decoder_times))
+        product_ids.extend([product] * len(decoder_times))
 
     pred_df = pd.DataFrame({
-    "time_idx": pred_time,
-    "prediction": pred_values
+        "time_idx": pred_time,
+        "Store ID": store_ids,
+        "Product ID": product_ids,
+        "prediction": pred_values
     })
 
-    # Average overlapping predictions
-    pred_df = pred_df.groupby("time_idx")["prediction"].mean().reset_index()
+    # average overlapping predictions
+    pred_df = pred_df.groupby(
+        ["time_idx","Store ID","Product ID"]
+    )["prediction"].mean().reset_index()
 
-    # attach store/product ids from original data
-    pred_df = pd.merge(
-        pred_df,
-        data[["time_idx","Store ID","Product ID"]],
-        on="time_idx",
-        how="left"
-    )
-
-    # -----------------------------
-# Merge predictions with data
-    # -----------------------------
+    # FIX datatype mismatch
+    pred_df["Store ID"] = pred_df["Store ID"].astype(data["Store ID"].dtype)
+    pred_df["Product ID"] = pred_df["Product ID"].astype(data["Product ID"].dtype)
 
     merged = pd.merge(
         data,
@@ -226,6 +223,7 @@ def main():
         on=["time_idx","Store ID","Product ID"],
         how="left"
     )
+
 
     # -----------------------------
     # Plot example product
@@ -246,10 +244,24 @@ def main():
     ).mean()
 
    # -----------------------------
-    # Future forecast
+    # Future Forecast
     # -----------------------------
 
-    future_values = pred[-1]
+    future_dataset = TimeSeriesDataSet.from_dataset(
+        training,
+        data,
+        predict=True,
+        stop_randomization=True
+    )
+
+    future_loader = future_dataset.to_dataloader(train=False, batch_size=128)
+
+    future_pred = tft.predict(future_loader)
+
+    future_pred = future_pred.cpu().numpy()
+
+    future_values = future_pred[-1]
+
     future_steps = len(future_values)
 
     last_idx = merged["time_idx"].max()
@@ -289,6 +301,9 @@ def main():
         linewidth=2,
         label="Forecast Start"
     )
+
+    # ADD THIS LINE HERE
+    plt.axvspan(split, len(merged), color="gray", alpha=0.1)
 
     plt.title("Temporal Fusion Transformer Demand Forecast")
     plt.xlabel("Time")
